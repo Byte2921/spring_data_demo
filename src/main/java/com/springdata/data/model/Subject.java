@@ -3,6 +3,8 @@ package com.springdata.data.model;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "subject")
@@ -12,8 +14,18 @@ import javax.persistence.*;
 @Builder
 public class Subject {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String subjectName;
-    private Boolean active;
+    @Builder.Default
+    @Column(columnDefinition = "boolean default false")
+    private Boolean active = false;
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ManyToMany(cascade = CascadeType.MERGE)
+    @JoinTable(name = "subject_students",
+            joinColumns = @JoinColumn(name = "subjects_id"),
+            inverseJoinColumns = @JoinColumn(name = "students_id")
+    )
+    private List<Student> students = new ArrayList<>();
 }
