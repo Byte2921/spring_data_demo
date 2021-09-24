@@ -16,4 +16,7 @@ public interface SubjectRepository extends JpaRepository<Subject, Long> {
     @Query("UPDATE Subject s SET s.active = true WHERE s.id IN (:ids)")
     void setSubjectActive(@Param("ids") Iterable<Long> subjectIds);
     Set<Subject> findByActiveIs(Boolean active);
+    @Modifying
+    @Query("DELETE FROM Subject s WHERE s.active = false")
+    void deleteInactiveSubjects();
 }

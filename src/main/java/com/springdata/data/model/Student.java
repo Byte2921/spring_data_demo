@@ -13,7 +13,6 @@ import java.util.Set;
 @Data
 @Builder
 public class Student {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,4 +21,6 @@ public class Student {
     private String email;
     @ManyToMany(mappedBy = "students")
     private Set<Subject> subjects = new HashSet<>();
+    @ManyToOne(cascade = CascadeType.MERGE)
+    private Laptop laptop;
 }

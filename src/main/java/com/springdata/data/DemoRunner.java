@@ -28,6 +28,8 @@ public class DemoRunner implements CommandLineRunner {
         demoService.activateSubjects(new ArrayList<>(Arrays.asList(1L, 2L)));
         Set<Student> students = demoService.getSubjectAttenders(1L);
         Set<Subject> subjects = demoService.getSubjectsBasedOnActivity(true);
+        demoService.deleteInactiveSubjects();
+        demoService.studentCountOnLaptop(2L);
 
     }
 

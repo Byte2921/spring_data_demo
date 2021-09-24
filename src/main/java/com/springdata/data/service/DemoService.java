@@ -1,9 +1,12 @@
 package com.springdata.data.service;
 
+import com.springdata.data.exceptions.LaptopException;
 import com.springdata.data.exceptions.StudentException;
 import com.springdata.data.exceptions.SubjectException;
+import com.springdata.data.model.Laptop;
 import com.springdata.data.model.Student;
 import com.springdata.data.model.Subject;
+import com.springdata.data.repository.LaptopRepository;
 import com.springdata.data.repository.StudentRepository;
 import com.springdata.data.repository.SubjectRepository;
 import lombok.NoArgsConstructor;
@@ -30,6 +33,8 @@ public class DemoService {
     StudentRepository studentRepository;
     @Autowired
     SubjectRepository subjectRepository;
+    @Autowired
+    LaptopRepository laptopRepository;
     @PersistenceContext
     EntityManager entityManager;
 
@@ -39,6 +44,10 @@ public class DemoService {
 
     public void saveSubject(Subject subject) {
         LOGGER.info("Saved " + subjectRepository.save(subject));
+    }
+
+    public void saveLaptop(Laptop laptop) {
+        LOGGER.info("Saved " + laptopRepository.save(laptop));
     }
 
     public void assignNewSubjectToStudent(Long studentId, Subject subject) {
@@ -84,6 +93,26 @@ public class DemoService {
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
             return new HashSet<>();
+        }
+    }
+
+    public void deleteInactiveSubjects() {
+        subjectRepository.deleteInactiveSubjects();
+        LOGGER.info("Subjects deleted");
+    }
+
+    public int studentCountOnLaptop(Long laptopId) {
+        try {
+            Optional<Laptop> response = laptopRepository.findById(laptopId);
+            Laptop laptop = response.orElseThrow(() -> new LaptopException(List.of(laptopId)));
+            Session session = entityManager.unwrap(Session.class);
+            Hibernate.initialize(laptop.getStudents());
+            session.close();
+            LOGGER.info("Found students " + laptop.getStudents().size() +": " + laptop.getStudents());
+            return laptop.getStudents().size();
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+            return -1;
         }
     }
 }
