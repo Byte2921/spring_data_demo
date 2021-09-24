@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 @Order(2)
@@ -44,23 +45,23 @@ public class InitData implements CommandLineRunner{
         Subject subject2 = Subject.builder()
                 .subjectName("Irodalom")
                 .build();
-        student1.setSubjects(new ArrayList<>(
+        student1.setSubjects(new HashSet<>(
                 Arrays.asList(subject1, subject2)
         ));
-        student2.setSubjects(new ArrayList<>(
+        student2.setSubjects(new HashSet<>(
                 List.of(subject1)
         ));
-        subject1.setStudents(new ArrayList<>(
+        subject1.setStudents(new HashSet<>(
                 Arrays.asList(student1, student2)
         ));
-        subject2.setStudents(new ArrayList<>(
+        subject2.setStudents(new HashSet<>(
                 List.of(student2)
         ));
-        studentRepository.saveAll(new ArrayList<>(
+        studentRepository.saveAll(new HashSet<>(
                 Arrays.asList(student1, student2)
         ));
         LOGGER.info("Students saved!");
-        subjectRepository.saveAll(new ArrayList<>(
+        subjectRepository.saveAll(new HashSet<>(
                 Arrays.asList(subject1, subject2)
         ));
         LOGGER.info("Subjects saved!");

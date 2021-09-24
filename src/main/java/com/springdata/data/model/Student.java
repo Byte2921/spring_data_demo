@@ -3,8 +3,8 @@ package com.springdata.data.model;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "student")
@@ -21,5 +21,5 @@ public class Student {
     private String lastName;
     private String email;
     @ManyToMany(mappedBy = "students")
-    private List<Subject> subjects = new ArrayList<>();
+    private Set<Subject> subjects = new HashSet<>();
 }

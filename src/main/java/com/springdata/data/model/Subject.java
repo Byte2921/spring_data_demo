@@ -3,8 +3,8 @@ package com.springdata.data.model;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "subject")
@@ -27,5 +27,5 @@ public class Subject {
             joinColumns = @JoinColumn(name = "subjects_id"),
             inverseJoinColumns = @JoinColumn(name = "students_id")
     )
-    private List<Student> students = new ArrayList<>();
+    private Set<Student> students = new HashSet<>();
 }

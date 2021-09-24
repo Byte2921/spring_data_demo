@@ -1,6 +1,7 @@
 package com.springdata.data.service;
 
 import com.springdata.data.exceptions.StudentException;
+import com.springdata.data.exceptions.SubjectException;
 import com.springdata.data.model.Student;
 import com.springdata.data.model.Subject;
 import com.springdata.data.repository.StudentRepository;
@@ -16,10 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+@Transactional
 @Service
 @NoArgsConstructor
 public class DemoService {
@@ -33,27 +33,57 @@ public class DemoService {
     @PersistenceContext
     EntityManager entityManager;
 
-    @Transactional
-    public void assignNewSubjectToStudent(Long studentId, Subject subject) {
-        try {
-            Optional<Student> response = studentRepository.findById(studentId);
-            Student student = response.orElseThrow(()-> new StudentException(List.of(studentId)));
-            Session session = (Session) entityManager.unwrap(Session.class);
-            session.close();
-            student.getSubjects().add(subject);
-            saveStudent(student);
-            subject.setStudents(new ArrayList<>
-                    (List.of(student)));
-        } catch (Exception ex) {
-            LOGGER.error(ex.getMessage());
-        }
-    }
-
     public void saveStudent(Student student) {
         LOGGER.info("Saved" + studentRepository.save(student));
     }
 
     public void saveSubject(Subject subject) {
         LOGGER.info("Saved " + subjectRepository.save(subject));
+    }
+
+    public void assignNewSubjectToStudent(Long studentId, Subject subject) {
+        try {
+            Optional<Student> response = studentRepository.findById(studentId);
+            Student student = response.orElseThrow(() -> new StudentException(List.of(studentId)));
+            Session session = entityManager.unwrap(Session.class);
+            session.close();
+            student.getSubjects().add(subject);
+            saveStudent(student);
+            subject.setStudents(new HashSet<>
+                    (List.of(student)));
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+        }
+    }
+
+    public void activateSubjects(ArrayList<Long> subjectIds) {
+        subjectRepository.setSubjectActive(subjectIds);
+        LOGGER.info("Updated " + subjectIds);
+    }
+
+    public Set<Student> getSubjectAttenders(Long subjectId) {
+        try {
+            Optional<Subject> response = subjectRepository.findById(subjectId);
+            Subject subject = response.orElseThrow(() -> new SubjectException(List.of(subjectId)));
+            Session session = entityManager.unwrap(Session.class);
+            Hibernate.initialize(subject.getStudents());
+            session.close();
+            LOGGER.info("Found students: " + subject.getStudents());
+            return subject.getStudents();
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+            return new HashSet<>();
+        }
+    }
+
+    public Set<Subject> getSubjectsBasedOnActivity(Boolean active) {
+        try {
+            Set<Subject> subjects = subjectRepository.findByActiveIs(active);
+            LOGGER.info("Found subjects: " + subjects);
+            return subjects;
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+            return new HashSet<>();
+        }
     }
 }
