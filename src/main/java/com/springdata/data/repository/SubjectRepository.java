@@ -14,9 +14,9 @@ import java.util.Set;
 public interface SubjectRepository extends JpaRepository<Subject, Long> {
     @Modifying
     @Query("UPDATE Subject s SET s.active = true WHERE s.id IN (:ids)")
-    void setSubjectActive(@Param("ids") Iterable<Long> subjectIds);
+    int setSubjectActive(@Param("ids") Iterable<Long> subjectIds);
     Set<Subject> findByActiveIs(Boolean active);
     @Modifying
     @Query("DELETE FROM Subject s WHERE s.active = false")
-    void deleteInactiveSubjects();
+    int deleteInactiveSubjects();
 }

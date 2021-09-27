@@ -38,36 +38,40 @@ public class DemoService {
     @PersistenceContext
     EntityManager entityManager;
 
-    public void saveStudent(Student student) {
-        LOGGER.info("Saved" + studentRepository.save(student));
+    public Student saveStudent(Student student) {
+        LOGGER.info("Saved" + student);
+        return studentRepository.save(student);
     }
 
-    public void saveSubject(Subject subject) {
-        LOGGER.info("Saved " + subjectRepository.save(subject));
+    public Subject saveSubject(Subject subject) {
+        LOGGER.info("Saved " + subject);
+        return subjectRepository.save(subject);
     }
 
-    public void saveLaptop(Laptop laptop) {
-        LOGGER.info("Saved " + laptopRepository.save(laptop));
+    public Laptop saveLaptop(Laptop laptop) {
+        LOGGER.info("Saved " + laptop);
+        return laptopRepository.save(laptop);
     }
 
-    public void assignNewSubjectToStudent(Long studentId, Subject subject) {
+    public Student assignNewSubjectToStudent(Long studentId, Subject subject) {
         try {
             Optional<Student> response = studentRepository.findById(studentId);
             Student student = response.orElseThrow(() -> new StudentException(List.of(studentId)));
             Session session = entityManager.unwrap(Session.class);
             session.close();
             student.getSubjects().add(subject);
-            saveStudent(student);
             subject.setStudents(new HashSet<>
                     (List.of(student)));
+            return saveStudent(student);
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
+            return new Student();
         }
     }
 
-    public void activateSubjects(ArrayList<Long> subjectIds) {
-        subjectRepository.setSubjectActive(subjectIds);
+    public int activateSubjects(Iterable<Long> subjectIds) {
         LOGGER.info("Updated " + subjectIds);
+        return subjectRepository.setSubjectActive(subjectIds);
     }
 
     public Set<Student> getSubjectAttenders(Long subjectId) {
@@ -96,9 +100,9 @@ public class DemoService {
         }
     }
 
-    public void deleteInactiveSubjects() {
-        subjectRepository.deleteInactiveSubjects();
+    public int deleteInactiveSubjects() {
         LOGGER.info("Subjects deleted");
+        return subjectRepository.deleteInactiveSubjects();
     }
 
     public int studentCountOnLaptop(Long laptopId) {
@@ -108,11 +112,27 @@ public class DemoService {
             Session session = entityManager.unwrap(Session.class);
             Hibernate.initialize(laptop.getStudents());
             session.close();
-            LOGGER.info("Found students " + laptop.getStudents().size() +": " + laptop.getStudents());
+            LOGGER.info("Found students " + laptop.getStudents().size() + ": " + laptop.getStudents());
             return laptop.getStudents().size();
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage());
             return -1;
+        }
+    }
+
+    public Subject toggleSubjectActivity(Long subjectId) {
+        try {
+            Optional<Subject> response = subjectRepository.findById(subjectId);
+            Subject subject = response.orElseThrow(() -> new SubjectException(List.of(subjectId)));
+            Session session = entityManager.unwrap(Session.class);
+            session.close();
+            subject.setActive(!subject.getActive());
+            LOGGER.info("Toggled subject activity: " + subject);
+            subjectRepository.save(subject);
+            return subject;
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage());
+            return new Subject();
         }
     }
 }

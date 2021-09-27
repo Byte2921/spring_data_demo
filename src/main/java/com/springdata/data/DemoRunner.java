@@ -30,7 +30,7 @@ public class DemoRunner implements CommandLineRunner {
         Set<Subject> subjects = demoService.getSubjectsBasedOnActivity(true);
         demoService.deleteInactiveSubjects();
         demoService.studentCountOnLaptop(2L);
-
+        demoService.toggleSubjectActivity(1L);
     }
 
     @Override
