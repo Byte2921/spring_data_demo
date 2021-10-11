@@ -1,5 +1,7 @@
 package com.springdata.data;
 
+import com.springdata.data.model.Subject;
+import com.springdata.data.service.DemoService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
